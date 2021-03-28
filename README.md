@@ -12,3 +12,6 @@ multidict: version 5.1.0 https://pypi.org/project/multidict/<br>
 python-dotenv: version 0.15.0 https://pypi.org/project/python-dotenv/<br>
 yarl: version 1.6.3 https://pypi.org/project/yarl/<br>
 requests: version 2.25.1 https://pypi.org/project/requests/<br>
+
+## city data
+`city.list.json.gz` was downloaded [here](http://bulk.openweathermap.org/sample/).  need to unzip before program can use it.

@@ -1,4 +1,5 @@
 # discord-weather-bot
+fun fact: most if not all of this was written in spacevim ide!
 
 ## requirements sources
 aiohttp: version 3.7.4 https://pypi.org/project/aiohttp/<br>

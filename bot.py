@@ -13,7 +13,7 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or(PREFIX))
 
 @bot.event
 async def on_ready():
-    print(f' {bot.user} has connected to Discord!'); sys.stdout.flush()
+    print(str(bot.user) + " has connected to Discord!"); sys.stdout.flush()
     weather_helper.initialize()
 
 @bot.command()
@@ -31,6 +31,6 @@ async def weather(ctx, *args):
     - city ID
     Make sure each parameter is separated by one space.  Not case-sensitive
     """
-    weather_helper.get_current_weather(args)
+    await ctx.send(embed=weather_helper.get_current_weather(args))
 
 bot.run(DISCORD_TOKEN)

@@ -33,4 +33,9 @@ async def weather(ctx, *args):
     """
     await ctx.send(embed=weather_helper.get_current_weather(args))
 
+@bot.command()
+async def units(ctx, *args):
+    """Either sets the units to the specified type, or returns the current unit setting."""
+    await ctx.send(weather_helper.units(args))
+
 bot.run(DISCORD_TOKEN)

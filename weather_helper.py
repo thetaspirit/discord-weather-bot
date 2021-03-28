@@ -37,6 +37,10 @@ def get_current_weather(args):
     - a city ID
     Returns a Discord Embed object (or a string if there's an error).
     """
+    global UNITS
+    global OWM_TOKEN
+    global city_codes
+
     url = ""
     if len(args) == 1 & args[0].isnumeric():
     # finds location by city code from json file
@@ -56,7 +60,7 @@ def get_current_weather(args):
 
     # if the response code isn't 200, it automatically exits the function, and returns the error code.
     if response.status_code != 200:
-        return "error " + str(response.status_code) + " " + data["message"]
+        return discord.Embed(title="error " + str(response.status_code) + ": " + data["message"])
 
     location = find_city_from_id(data["id"]) #data["id"] is an int
     
@@ -68,6 +72,14 @@ def get_current_weather(args):
 
     embed = discord.Embed(title=embed_title, description=embed_description, colour=embed_colour)
     return embed
+
+def units(args):
+    global UNITS
+    if args and args[0] in units_dict.keys():
+        UNITS = args[0]
+        return "Units successfully set to " + UNITS
+    else:
+        return "Units not changed.  Current units are " + UNITS + ".  Options for units are \"standard\", \"metric\", or \"imperial\"."
 
 def get_temp_color(temp):
     """Returns a hex color depending on the temp and temperature units."""

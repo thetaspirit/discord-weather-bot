@@ -70,8 +70,11 @@ def get_current_weather(args):
     embed_description = "Weather for **" + location["name"] + ", " + location["state"] + " " + location["country"] + "** at "
     embed_description += time_helper.get_time_with_timezone(data["timezone"])
     embed_colour = get_temp_color()
+    image_url = "http://openweathermap.org/img/wn/" + str(data["weather"][0]["icon"]) + "@2x.png"
+    print(image_url)
 
     embed = discord.Embed(title=embed_title, description=embed_description, colour=embed_colour)
+    embed.set_thumbnail(url=image_url)
 
     temperature_value = "It's " + str(data["main"]["temp"]) + units_dict[UNITS]["temp"]
     temperature_value += ".  Feels like " + str(data["main"]["feels_like"]) + units_dict[UNITS]["temp"]

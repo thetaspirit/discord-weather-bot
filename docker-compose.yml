@@ -3,5 +3,6 @@ services:
   bot:
     image: thetaspirit/discord-weather-bot
     environment:
-      PREFIX: '?'
-      TOKEN: 'put-your-token-here'
+      PREFIX: '&'
+      DISCORD_TOKEN: 'put-your-bot-token-here'
+      OWM_TOKEN: 'put-your-owm-token-here'

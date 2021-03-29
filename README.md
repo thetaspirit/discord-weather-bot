@@ -23,7 +23,7 @@ There are two ways to run this program: with Docker, and without it (native). I 
 
 ### Docker
 
-Download the provided `docker-compose.yml` file, and open it with your preferred text editor. Set the bot prefix to a character (default is `?`), and set the bot token. [Don't know how to get a token?](https://www.writebots.com/discord-bot-token/)
+Download the provided `docker-compose.yml` file, and open it with your preferred text editor. Set the bot prefix to a character (default is `&`), and set the bot token. [Don't know how to get a token?](https://www.writebots.com/discord-bot-token/). Additionally, set up an Open Weather Map API key. [Don't know where to get one?](https://openweathermap.org/appid).
 
 Install Docker Compose by following the instructions [here](https://docs.docker.com/compose/install/).
 
@@ -39,7 +39,7 @@ Create a virtual environment with `python3 -m venv venv`, and activate it with `
 
 Install the requirements with `pip3 install -r requirements.txt`.
 
-Copy the file `sample.env` to a file called `.env`, and fill in the prefix and token. Read the section on Docker to learn how to get the token.
+Copy the file `sample.env` to a file called `.env`, and fill in the prefix, token and OWM API key. Read the section on Docker to learn how to get the token.
 
 Run the program with `python3 bot.py`, and have it run in the background.
 

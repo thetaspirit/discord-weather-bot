@@ -3,6 +3,7 @@ import requests
 import os
 import sys
 import discord
+import assets
 import time_helper
 
 def initialize():
@@ -14,9 +15,7 @@ def initialize():
     #default to imperial units
 
     global units_dict
-    units_dict = {"imperial": {"temp": "°F", "speed": "mph"}, 
-                  "metric": {"temp": "°C", "speed": "m/s"}, 
-                  "standard": {"temp": "°K", "speed": "m/s"}}
+    units_dict = assets.units_dict
 
     global city_codes
     city_codes = json.load(open('city.list.json'))

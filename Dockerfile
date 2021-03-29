@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y build-essential && pip install -r requi
 COPY bot.py .
 COPY time_helper.py .
 COPY weather_helper.py .
+COPY assets.py .
 
 RUN wget https://bulk.openweathermap.org/sample/city.list.json.gz
 
@@ -22,4 +23,4 @@ RUN apt-get remove -y wget && apt-get autoremove -y
 RUN gzip -d city.list.json.gz
 
 # command to run on container start
-CMD [ "python", "./bot.py" ] 
+CMD [ "python3", "bot.py" ] 

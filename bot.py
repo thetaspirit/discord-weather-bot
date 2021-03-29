@@ -21,16 +21,8 @@ async def ping(ctx, *args):
     await ctx.send("pong!")
 
 @bot.command()
-async def weather(ctx, *args):
-    """
-    Gets the current weather of a specified location.
-    For location parameters, provide either:
-    - a city name
-    - a city name and country code
-    - a city name, state code, and ISO 3166 2-letter alpha country code
-    - city ID
-    Make sure each parameter is separated by one space.  Not case-sensitive
-    """
+async def weather(ctx, *, args): # Note args is a string, not a tuple like other command methods.
+    """See docs for weather_helper.get_current_weather."""
     await ctx.send(embed=weather_helper.get_current_weather(args))
     sys.stdout.flush()
 

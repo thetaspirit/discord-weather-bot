@@ -3,6 +3,7 @@ import requests
 import os
 import sys
 import discord
+import urllib.parse
 import assets
 import time_helper
 
@@ -29,12 +30,14 @@ def find_city_from_id(id):
 
 def get_current_weather(args):
     """
-    Takes in a tuple for location data, one of the following:
-    - a city name
-    - a city name and country code
-    - a city name, state code, and country ISO 3155 2-letter code
-    - a city ID
-    Returns a Discord Embed object (or a string if there's an error).
+    Takes in a string for location data, one of the following:
+    - <city name>
+    - <city name>, <ISO 3166 country code, 2 letters>
+    - <city name>, <state code, 2 letters>, <ISO 3166 country code>
+    - a city ID number
+    Use a space if the city name has more than one word (like normal).
+    Separate 
+    Returns a Discord Embed object
     """
     global UNITS
     global units_dict
@@ -42,16 +45,13 @@ def get_current_weather(args):
     global city_codes
 
     url = ""
-    if len(args) == 1 & args[0].isnumeric():
-    # finds location by city code from json file
-        url = "https://api.openweathermap.org/data/2.5/weather?id=" + str(args[0])
+    if args.isnumeric():
+    # uses city code instead of city/location name
+        url = "https://api.openweathermap.org/data/2.5/weather?id=" + str(args)
     else:
-        q = ""
-        for i in range(len(args)):
-            q += args[i]
-            if i < (len(args) - 1):
-                q += ","
-        url = "https://api.openweathermap.org/data/2.5/weather?q=" + q
+        args = args.replace(", ", ",")
+        args = urllib.parse.quote(args)
+        url = "https://api.openweathermap.org/data/2.5/weather?q=" + args
 
     url += "&units=" + UNITS + "&appid=" + OWM_TOKEN
     
@@ -71,7 +71,6 @@ def get_current_weather(args):
     embed_description += time_helper.get_time_with_timezone(data["timezone"])
     embed_colour = get_temp_color()
     image_url = "http://openweathermap.org/img/wn/" + str(data["weather"][0]["icon"]) + "@2x.png"
-    print(image_url)
 
     embed = discord.Embed(title=embed_title, description=embed_description, colour=embed_colour)
     embed.set_thumbnail(url=image_url)

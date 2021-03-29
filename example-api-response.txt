@@ -1,0 +1,17 @@
+{"coord":{"lon":-122.2007,"lat":47.6104},
+
+"weather":[
+{"id":501,"main":"Rain","description":"moderate rain","icon":"10d"},
+{"id":701,"main":"Mist","description":"mist","icon":"50d"}],
+
+  "base":"stations",
+
+  "main":{"temp":6.86,"feels_like":1.74,"temp_min":5.56,"temp_max":8,"pressure":1013,"humidity":87},
+  "visibility":8047,
+  "wind":{"speed":5.66,"deg":170},
+  "rain":{"1h":1.78},
+  "clouds":{"all":90},
+
+  "dt":1616960602,
+  "sys":{"type":1,"id":5692,"country":"US","sunrise":1616939677,"sunset":1616985156},
+  "timezone":-25200,"id":5786882,"name":"Bellevue","cod":200}

@@ -14,9 +14,9 @@ def initialize():
     #default to imperial units
 
     global units_dict
-    units_dict = {"imperial": {"temp": "°F", "speed": "mph", "pressure": "hPa"}, 
-                  "metric": {"temp": "°C", "speed": "m/s", "pressure": "hPa"}, 
-                  "standard": {"temp": "°K", "speed": "m/s", "pressure": "hPa"}}
+    units_dict = {"imperial": {"temp": "°F", "speed": "mph"}, 
+                  "metric": {"temp": "°C", "speed": "m/s"}, 
+                  "standard": {"temp": "°K", "speed": "m/s"}}
 
     global city_codes
     city_codes = json.load(open('city.list.json'))
@@ -32,12 +32,13 @@ def get_current_weather(args):
     """
     Takes in a tuple for location data, one of the following:
     - a city name
-    - a city name and state code
+    - a city name and country code
     - a city name, state code, and country ISO 3155 2-letter code
     - a city ID
     Returns a Discord Embed object (or a string if there's an error).
     """
     global UNITS
+    global units_dict
     global OWM_TOKEN
     global city_codes
 
@@ -55,6 +56,7 @@ def get_current_weather(args):
 
     url += "&units=" + UNITS + "&appid=" + OWM_TOKEN
     
+    print(url)
     response = requests.get(url)
     data = response.json()
 
@@ -68,9 +70,41 @@ def get_current_weather(args):
     embed_title = data["weather"][0]["description"].title() + " " + str(data["main"]["temp"]) + units_dict[UNITS]["temp"]
     embed_description = "Weather for **" + location["name"] + ", " + location["state"] + " " + location["country"] + "** at "
     embed_description += time_helper.get_time_with_timezone(data["timezone"])
-    embed_colour = 0x32A852
+    embed_colour = get_temp_color()
 
     embed = discord.Embed(title=embed_title, description=embed_description, colour=embed_colour)
+
+    temperature_value = "It's " + str(data["main"]["temp"]) + units_dict[UNITS]["temp"]
+    temperature_value += ".  Feels like " + str(data["main"]["feels_like"]) + units_dict[UNITS]["temp"]
+    embed.add_field(name="Temperature", value=temperature_value, inline=False)
+
+    embed.add_field(name="Pressure", value=str(data["main"]["pressure"]) + " hPa")
+    embed.add_field(name="Humidity", value=str(data["main"]["humidity"]) + "%")
+    embed.add_field(name="Visibility", value=str(data["visibility"]) + " meters")
+
+    try:
+        wind_value = "Speed: " + str(data["wind"]["speed"]) + " " + units_dict[UNITS]["speed"]
+        wind_value += ".  Direction: " + str(data["wind"]["deg"]) + "°"
+        embed.add_field(name="Wind", value=wind_value)
+    except: pass
+
+    try: embed.add_field(name="Cloud cover", value=str(data["clouds"]["all"]) + "%")
+    except: pass
+
+    try:
+        rain_value = str(data["rain"]["1h"]) + " mm of rain in the past hour.  "
+        try: rain_value += str(data["rain"]["3h"]) + " mm of rain in the past three hours."
+        except: pass
+        embed.add_field(name="Rain", value=rain_value, inline=False)
+    except: pass
+
+    try:
+        snow_value = str(data["snow"]["1h"]) + " mm of snow in the past hour.  "
+        try: snow_value += str(data["snow"]["3h"]) + " mm of snow in the past three hours."
+        except: pass
+        embed.add_field(name="Snow", value=snow_value, inline=False)
+    except: pass
+    
     return embed
 
 def units(args):
@@ -81,5 +115,6 @@ def units(args):
     else:
         return "Units not changed.  Current units are " + UNITS + ".  Options for units are \"standard\", \"metric\", or \"imperial\"."
 
-def get_temp_color(temp):
+def get_temp_color():
     """Returns a hex color depending on the temp and temperature units."""
+    return 0x32A852

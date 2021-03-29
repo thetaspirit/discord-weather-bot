@@ -26,12 +26,13 @@ async def weather(ctx, *args):
     Gets the current weather of a specified location.
     For location parameters, provide either:
     - a city name
-    - a city name and state code
+    - a city name and country code
     - a city name, state code, and ISO 3166 2-letter alpha country code
     - city ID
     Make sure each parameter is separated by one space.  Not case-sensitive
     """
     await ctx.send(embed=weather_helper.get_current_weather(args))
+    sys.stdout.flush()
 
 @bot.command()
 async def units(ctx, *args):

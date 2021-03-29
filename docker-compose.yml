@@ -1,0 +1,7 @@
+version: '3'
+services:
+  bot:
+    image: sambhavsaggi/discord-weather-bot
+    environment:
+      PREFIX: '?'
+      TOKEN: 'put-your-token-here'

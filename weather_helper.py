@@ -49,8 +49,7 @@ def get_current_weather(args):
     # uses city code instead of city/location name
         url = "https://api.openweathermap.org/data/2.5/weather?id=" + str(args)
     else:
-        args = args.replace(", ", ",")
-        args = urllib.parse.quote(args)
+        args = parse_location_url(args)
         url = "https://api.openweathermap.org/data/2.5/weather?q=" + args
 
     url += "&units=" + UNITS + "&appid=" + OWM_TOKEN
@@ -115,6 +114,12 @@ def units(args):
         return "Units successfully set to " + UNITS
     else:
         return "Units not changed.  Current units are " + UNITS + ".  Options for units are \"standard\", \"metric\", or \"imperial\"."
+
+def parse_location_url(args):
+    """Takes in a string with spaces and commas and spaces.  ex: New York City, NY, US"""
+    args = args.replace(", ", ",")
+    args = urllib.parse.quote(args)
+    return args
 
 def get_temp_color():
     """Returns a hex color depending on the temp and temperature units."""

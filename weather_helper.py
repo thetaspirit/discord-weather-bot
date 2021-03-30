@@ -4,6 +4,7 @@ import os
 import sys
 import discord
 import urllib.parse
+from unidecode import unidecode
 import assets
 import time_helper
 
@@ -27,6 +28,36 @@ def initialize():
 def find_city_from_id(id):
     """Finds city from city_codes list based on id number.  Returns dictionary object."""
     return [city for city in city_codes if city["id"] == id][0]
+    # there should only be one item in this dict bc id numbers are unique
+
+def find_city_from_name(args):
+    """Takes same inputs as weather method. Separated by spaces and comma-spaces. Returns a dict."""
+    location = args.split(",") # might only have commas, not comma-spaces
+    name = unidecode(location[0].strip().lower())
+    
+    # if state is empty
+    if len(location) == 3:
+        state = unidecode(location[1].strip().lower())
+        country = unidecode(location[2].strip().lower())
+    # if state or state and country are empty
+    else:
+        state = ""
+        try: country = unidecode(location[1].strip().lower())
+        except: country = ""
+
+    cities = [city for city in city_codes if unidecode(city["name"]).lower()) == namne]
+    if len(cities) == 1: return cities[0]
+    # if country is not blank and we have more than one possible city
+    elif country:
+        cities = [city for city in cities if unidecode(city["country"]).lower() == country]
+        if len(cities) == 1: return cities[0]
+
+    # either the city doesn't have a state, or the user didn't provide it.
+    # if there's a place with no state and a place with a state, choose the one with no state.
+    cities = [city for city in cities if unidecode(city["state"]).lower() == state]
+    
+    try: return cities[0]
+    except: return {}
 
 def get_current_weather(args):
     """
@@ -106,6 +137,13 @@ def get_current_weather(args):
     except: pass
     
     return embed
+
+def air(args):
+    """Stats about air quality. Takes in location and translates to lat and log."""
+    global UNITS
+    global units_dict
+    global OWM_TOKEN
+    global city_codes
 
 def units(args):
     global UNITS

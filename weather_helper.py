@@ -25,39 +25,45 @@ def initialize():
 
     print("Weather helper initialized!"); sys.stdout.flush()
 
-def find_city_from_id(id):
+def find_city_from_id(number):
     """Finds city from city_codes list based on id number.  Returns dictionary object."""
-    return [city for city in city_codes if city["id"] == id][0]
     # there should only be one item in this dict bc id numbers are unique
+    return [city for city in city_codes if city["id"] == number][0]
 
 def find_city_from_name(args):
-    """Takes same inputs as weather method. Separated by spaces and comma-spaces. Returns a dict."""
-    location = args.split(",") # might only have commas, not comma-spaces
-    name = unidecode(location[0].strip().lower())
+    """Takes same inputs as weather method. **Assumes second parameter is country if there are only 2 parameters.**
+    Separated by spaces and comma-spaces. Returns a array of dicts.Use first dict. If returns empty, can't find city.
+    MUST HAVE A COUNTRY"""
     
+    location = args.split(",") # might only have commas, not comma-spaces
+    try: name = unidecode(location[0].strip().lower())
+    except: return {}
+    
+    ### PARSING INPUT: finding city name, state, and country
     # if state is empty
     if len(location) == 3:
         state = unidecode(location[1].strip().lower())
         country = unidecode(location[2].strip().lower())
     # if state or state and country are empty
     else:
-        state = ""
-        try: country = unidecode(location[1].strip().lower())
-        except: country = ""
+        # if there are only 2 params, assumes it's the country, not the state
+        try: country = unidecode(location[1].strip().lower()); state = ""
+        except: return {} # must provide a country
 
-    cities = [city for city in city_codes if unidecode(city["name"]).lower()) == namne]
-    if len(cities) == 1: return cities[0]
-    # if country is not blank and we have more than one possible city
-    elif country:
-        cities = [city for city in cities if unidecode(city["country"]).lower() == country]
-        if len(cities) == 1: return cities[0]
+    ### SEARCHING FOR CITY
+    cities = [city for city in city_codes if unidecode(city["name"]).lower() == name]
+    if len(cities) < 2: return cities
 
-    # either the city doesn't have a state, or the user didn't provide it.
-    # if there's a place with no state and a place with a state, choose the one with no state.
-    cities = [city for city in cities if unidecode(city["state"]).lower() == state]
+    cities = [city for city in cities if unidecode(city["country"]).lower() == country]
+    if len(cities) < 2: return cities
+
+    if state: cities = [city for city in cities if unidecode(city["state"]).lower() == state];
     
-    try: return cities[0]
-    except: return {}
+    # if state is empty, but there are matches for cities without states, use those
+    elif [city for city in cities if unidecode(city["state"]).lower() == state]: 
+        cities = [city for city in cities if unidecode(city["state"]).lower() == state]
+
+    return cities
 
 def get_current_weather(args):
     """
@@ -85,19 +91,18 @@ def get_current_weather(args):
 
     url += "&units=" + UNITS + "&appid=" + OWM_TOKEN
     
-    print(url)
     response = requests.get(url)
     data = response.json()
 
     # if the response code isn't 200, it automatically exits the function, and returns the error code.
     if response.status_code != 200:
-        return discord.Embed(title="error " + str(response.status_code) + ": " + data["message"])
+        return discord.Embed(title="error " + str(response.status_code), description=data["message"])
 
-    location = find_city_from_id(data["id"]) #data["id"] is an int
+    city = find_city_from_id(data["id"]) #data["id"] is an int
     
     # making the embed
     embed_title = data["weather"][0]["description"].title() + " " + str(data["main"]["temp"]) + units_dict[UNITS]["temp"]
-    embed_description = "Weather for **" + location["name"] + ", " + location["state"] + " " + location["country"] + "** at "
+    embed_description = "Weather for **" + city["name"] + ", " + city["state"] + " " + city["country"] + "** at "
     embed_description += time_helper.get_time_with_timezone(data["timezone"])
     embed_colour = get_temp_color()
     image_url = "http://openweathermap.org/img/wn/" + str(data["weather"][0]["icon"]) + "@2x.png"
@@ -139,11 +144,46 @@ def get_current_weather(args):
     return embed
 
 def air(args):
-    """Stats about air quality. Takes in location and translates to lat and log."""
+    """Stats about air quality. Takes in location and translates to lat and lon."""
     global UNITS
     global units_dict
     global OWM_TOKEN
-    global city_codes
+
+    try: city = find_city_from_name(args)[0] # otherwise, city could not be found
+    except: return discord.Embed(title="Cannot find city", description="Please provide `<city>, <country>` or `<city>, <state>, <country>`")
+
+    url = "https://api.openweathermap.org/data/2.5/air_pollution?lat=" + str(city["coord"]["lat"]) + "&lon=" + str(city["coord"]["lon"]) + "&appid=" + OWM_TOKEN
+    response = requests.get(url)
+    
+    if response.status_code != 200:
+        return discord.Embed(title="error " + str(respons(e.status_code), description=data["message"]))
+
+    data = response.json()
+
+    air_quality_index = data["list"][0]["main"]["aqi"]
+
+    embed_title = "Air Quality Index: " + str(air_quality_index) + " (on a scale of 1-5)"
+    embed_description = "Air pollution data for **" + city["name"] + ", " + city["state"] + " " + city["country"] + "**"
+    
+    embed_colour = 0xFFFFFF
+    if air_quality_index == 1: embed_colour = 0xFF0000
+    elif air_quality_index == 2: embed_colour = 0xFF7F00
+    elif air_quality_index == 3: embed_colour = 0xFFFF00
+    elif air_quality_index == 4: embed_colour = 0x7FFF00
+    elif air_quality_index == 5: embed_colour = 0x00FF00
+
+    embed = discord.Embed(title=embed_title, description=embed_description, colour=embed_colour)
+
+    embed.add_field(name="Carbon Monoxide", value=str(data["list"][0]["components"]["co"]) + " μg/m³")
+    embed.add_field(name="Nitrogen Monoxide", value=str(data["list"][0]["components"]["no"]) + " μg/m³")
+    embed.add_field(name="Nirogen Dioxide", value=str(data["list"][0]["components"]["no2"]) + " μg/m³")
+    embed.add_field(name="Ozone", value=str(data["list"][0]["components"]["o3"]) + " μg/m³")
+    embed.add_field(name="Sulphur Dioxide", value=str(data["list"][0]["components"]["so2"]) + " μg/m³")
+    embed.add_field(name="Fine Particulate Matter", value=str(data["list"][0]["components"]["pm2_5"]) + " μg/m³")
+    embed.add_field(name="Coarse Particulate Matter", value=str(data["list"][0]["components"]["pm10"]) + " μg/m³")
+    embed.add_field(name="Ammonia", value=str(data["list"][0]["components"]["nh3"]) + " μg/m³")
+
+    return embed
 
 def units(args):
     global UNITS
@@ -158,6 +198,17 @@ def parse_location_url(args):
     args = args.replace(", ", ",")
     args = urllib.parse.quote(args)
     return args
+
+### THE GEOCODING API DOESN'T PROVIDE ALL THE INFORMATION I NEED.  USING MY OWN GET_CITY_FROM_NAME FUNCTION INSTEAD
+#  def find_coords_from_name(args):
+    #  """Gets the [lat, lon] coordinates of a city based on its name. Returns empty array if city not found"""
+    #  global OWM_TOKEN
+    #  args = parse_location_url(args)
+    #  url = "https://api.openweathermap.org/geo/1.0/direct?q=" + args + "&limit=1&appid=" + OWM_TOKEN
+    #  response = requests.get(url)
+    #  if response.status_code != 200: return []
+    #  data = response.json()
+    #  return [data["lat"], data["lon"]]
 
 def get_temp_color():
     """Returns a hex color depending on the temp and temperature units."""

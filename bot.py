@@ -23,7 +23,8 @@ async def ping(ctx, *args):
 @bot.command()
 async def weather(ctx, *, args): # Note args is a string, not a tuple like other command methods.
     """See docs for weather_helper.get_current_weather."""
-    await ctx.send(embed=weather_helper.get_current_weather(args))
+    async with ctx.typing(): e = weather_helper.get_current_weather(args)
+    await ctx.send(embed=e)
     sys.stdout.flush()
 
 @bot.command()

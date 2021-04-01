@@ -127,6 +127,9 @@ def get_current_weather(args):
     try: embed.add_field(name="Cloud cover", value=str(data["clouds"]["all"]) + "%")
     except: pass
 
+    uv_index = requests.get("https://api.openweathermap.org/data/2.5/uvi?lat=" + str(data["coord"]["lat"]) + "&lon=" + str(data["coord"]["lon"]) + "&appid=" + OWM_TOKEN).json()["value"]
+    embed.add_field(name="UV Index", value=str(uv_index))
+
     try:
         rain_value = str(data["rain"]["1h"]) + " mm of rain in the past hour.  "
         try: rain_value += str(data["rain"]["3h"]) + " mm of rain in the past three hours."
